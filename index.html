@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Identifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f0f4f8;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            white-space: pre-wrap; /* Preserve whitespace */
+            max-height: 200px; /* Limit height */
+            overflow-y: auto; /* Scroll if overflow */
+        }
+        .symptom-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .symptom-button {
+            flex: 1;
+            margin: 0 5px;
+        }
+        .symptom-button button {
+            background-color: #28a745; /* Green for symptoms */
+        }
+        .symptom-button button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Health Identifier</h1>
+        <button onclick="registerId()">Register ID</button>
+      <center><h4>Click your symptoms</h4></center>
+        <div class="symptom-buttons">
+            <div class="symptom-button">
+                <button onclick="addSpecificSymptom('Fever')">Add Fever</button>
+            </div>
+            <div class="symptom-button">
+                <button onclick="addSpecificSymptom('Cold')">Add Cold</button>
+            </div>
+        </div>
+        <button onclick="deleteSymptoms()">Delete Symptoms</button>
+        <button onclick="checkHealth()">Check Health</button>
+        <button onclick="checkInformation()">Check Information</button>
+        <button onclick="exitApp()">Exit</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        let userId, age, firstname, lastname, gender, address, contact;
+        let symptomsList = [];
+        let symptomCount = 0;
+        let registered = false;
+
+        function registerId() {
+            firstname = prompt("Enter your First Name:");
+            lastname = prompt("Enter your Last Name:");
+            gender = prompt("Enter your Gender:");
+            address = prompt("Enter your Address:");
+            contact = prompt("Enter your Contact Number:");
+            age = prompt("Enter your Age:");
+            userId = prompt("Enter your ID:");
+            registered = true;
+            displayOutput(`ID registered successfully: ${userId}`);
+        }
+
+        function addSpecificSymptom(symptom) {
+            if (!registered) {
+                displayOutput("You must register first before adding symptoms.");
+                return;
+            }
+            if (symptomCount < 100) {
+                symptomsList.push(symptom);
+                symptomCount++;
+                displayOutput(`Symptom added: ${symptom}`);
+            } else {
+                displayOutput("Cannot add more symptoms. Maximum limit reached.");
+            }
+        }
+
+        function deleteSymptoms() {
+            if (!registered) {
+                displayOutput("You must register first before deleting symptoms.");
+                return;
+            }
+            const delsymptom = prompt("Enter symptom to delete:");
+            const index = symptomsList.indexOf(delsymptom);
+            if (index > -1) {
+                symptomsList.splice(index, 1);
+                symptomCount--;
+                displayOutput(`Symptom deleted: ${delsymptom}`);
+            } else {
+                displayOutput("Symptom not found.");
+            }
+        }
+
+        function checkHealth() {
+            if (!registered) {
+                displayOutput("You must register first.");
+                return;
+            }
+            const inputUserId = prompt("Enter your ID to check your health:");
+            if (inputUserId == userId) {
+                let healthMessage = `User ID: ${userId}\nHello ${firstname}, You have [ `;
+                if (symptomCount === 0) {
+                    healthMessage += "No symptoms ]";
+                } else {
+                    healthMessage += symptomsList.join(", ") + " ]";
+                }
+                const healthRating = prompt("Please rate your symptoms from 1 to 10:");
+                evaluateSymptoms(healthRating);
+                displayOutput(healthMessage);
+            } else {
+                displayOutput("User ID not found.");
+            }
+        }
+
+        function checkInformation() {
+            if (!registered) {
+                displayOutput("You must register first.");
+                return;
+            }
+            const inputUserId = prompt("Enter your ID to check your Information:");
+            if (inputUserId == userId) {
+                const infoMessage = `Hello ${firstname}, Here is your information:\n` +
+                    `First Name: ${firstname}\n` +
+                    `Last Name: ${lastname}\n` +
+                    `Gender: ${gender}\n` +
+                    `Address: ${address}\n` +
+                    `Contact: ${contact}\n` +
+                    `Age: ${age}\n` +
+                    `ID REGISTERED: ${userId}`;
+                displayOutput(infoMessage);
+            } else {
+                displayOutput("User ID not found.");
+            }
+        }
+
+        function exitApp() {
+            displayOutput(`Goodbye ${firstname}, Have a nice day!`);
+            clearOutput(); // Clear the output when exiting
+            registered = false; // Reset for next use
+        }
+
+        function evaluateSymptoms(health) {
+            let message = "";
+            if (health <= 4) {
+                message = "Your symptoms are mild.";
+            } else if (health <= 6) {
+                message = "Your symptoms are moderate.";
+            } else if (health <= 10) {
+                message = "Your symptoms are severe.";
+            } else {
+                message = "Invalid. Please choose from 1 to 10.";
+            }
+            displayOutput(message);
+        }
+
+        function displayOutput(message) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.textContent += message + "\n";
+        }
+
+        function clearOutput() {
+            const outputDiv = document.getElementById('output');
+            outputDiv.textContent = ""; // Clear the output area
+        }
+    </script>
+</body>
+</html>
